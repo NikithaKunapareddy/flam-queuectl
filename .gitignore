@@ -1,0 +1,15 @@
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+.queuectl/
+*.pyc
+dist/
+build/
+*.egg-info/
+.queuectl/
+__pycache__/
+*.pyc
+*.egg-info/
+worker*.log
+make_git_history.py

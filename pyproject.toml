@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "queuectl"
+version = "0.1.0"
+description = "Lightweight CLI job queue with persistence, retries, and DLQ"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [ { name = "queuectl contributors" } ]
+requires-python = ">=3.10"
+keywords = ["queue", "jobs", "cli", "worker", "sqlite"]
+classifiers = [
+	"Programming Language :: Python :: 3",
+	"License :: OSI Approved :: MIT License",
+	"Operating System :: OS Independent",
+]
+
+[project.scripts]
+queuectl = "queuectl.cli:main"
+
+[tool.setuptools]
+packages = ["queuectl"]
+
+[project.optional-dependencies]
+dev = [
+	"pytest>=7.0",
+	"black",
+	"ruff",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 88
+extend-select = ["E", "F", "W", "I"]
