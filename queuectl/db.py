@@ -53,3 +53,44 @@ def init_db():
     conn.execute("INSERT OR IGNORE INTO config (key, value) VALUES ('max_retries', '3')")
     conn.execute("INSERT OR IGNORE INTO config (key, value) VALUES ('backoff_base', '2')")
     conn.close()
+
+def enqueue_job(job_id: str, command: str, max_retries: int | None = None):
+    conn = _connect()
+    if max_retries is None:
+        max_retries = int(get_config("max_retries"))
+    ts = now_iso()
+    try:
+        conn.execute(
+            """INSERT INTO jobs (id, command, state, attempts, max_retries, created_at, updated_at)
+               VALUES (?, ?, 'pending', 0, ?, ?, ?)""",
+            (job_id, command, max_retries, ts, ts),
+        )
+    except sqlite3.IntegrityError:
+        conn.close()
+        raise ValueError(f"job id '{job_id}' already exists")
+    conn.close()
+
+def list_jobs(state: str | None = None):
+    conn = _connect()
+    if state:
+        rows = conn.execute(
+            "SELECT * FROM jobs WHERE state = ? ORDER BY created_at ASC", (state,)
+        ).fetchall()
+    else:
+        rows = conn.execute("SELECT * FROM jobs ORDER BY created_at ASC").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def counts_by_state():
+    conn = _connect()
+    rows = conn.execute("SELECT state, COUNT(*) as n FROM jobs GROUP BY state").fetchall()
+    conn.close()
+    return {r["state"]: r["n"] for r in rows}
+
+def get_config(key: str) -> str:
+    conn = _connect()
+    row = conn.execute("SELECT value FROM config WHERE key=?", (key,)).fetchone()
+    conn.close()
+    if not row:
+        raise KeyError(key)
+    return row["value"]
