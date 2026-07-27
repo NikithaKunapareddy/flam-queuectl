@@ -51,8 +51,11 @@ def cmd_worker_start(args):
     def _forward_and_wait(signum, frame):
         for p in procs:
             try:
-                p.send_signal(signum)
-            except ProcessLookupError:
+                if sys.platform == "win32":
+                    p.terminate()
+                else:
+                    p.send_signal(signum)
+            except (ProcessLookupError, OSError, ValueError):
                 pass
         for p in procs:
             p.wait()
