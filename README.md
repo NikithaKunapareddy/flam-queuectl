@@ -171,6 +171,16 @@ python -m pytest -v
 
 ---
 
+---
+
+## 📚 Documentation & Technical Defense
+
+For reviewers, technical interviewers, and live defense sessions, QueueCTL includes two comprehensive reference documents:
+* **[`DECISIONS.md`](./DECISIONS.md)**: Details the core architectural trade-offs, explaining why SQLite WAL mode was selected over Redis/RabbitMQ, how cross-process atomicity works (`BEGIN IMMEDIATE`), and how background heartbeats solve process crashes (`SIGKILL`).
+* **[`LIVE_REVIEW_GUIDE.md`](./LIVE_REVIEW_GUIDE.md)**: A complete study guide and 60-second elevator pitch designed to assist in presenting and defending every line of code during a technical review.
+
+---
+
 ## 📁 Project Structure
 
 ```text
