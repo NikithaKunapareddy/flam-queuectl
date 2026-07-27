@@ -31,9 +31,11 @@ dev = [
 ]
 
 [tool.black]
-line-length = 88
+line-length = 120
 target-version = ["py310"]
 
 [tool.ruff]
-line-length = 88
-extend-select = ["E", "F", "W", "I"]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]

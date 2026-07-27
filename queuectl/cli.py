@@ -112,9 +112,7 @@ def cmd_list(args):
         print(json.dumps(jobs))
     else:
         for j in jobs:
-            print(
-                f"{j['id']:20s} {j['state']:12s} attempts={j['attempts']}/{j['max_retries']}  {j['command']}"
-            )
+            print(f"{j['id']:20s} {j['state']:12s} attempts={j['attempts']}/{j['max_retries']}  {j['command']}")
 
 
 def cmd_dlq_list(args):
@@ -124,9 +122,7 @@ def cmd_dlq_list(args):
         print(json.dumps(jobs))
     else:
         for j in jobs:
-            print(
-                f"{j['id']:20s} attempts={j['attempts']}  last_error={j['last_error']}"
-            )
+            print(f"{j['id']:20s} attempts={j['attempts']}  last_error={j['last_error']}")
 
 
 def cmd_dlq_retry(args):
@@ -153,9 +149,7 @@ def build_parser():
     sub = p.add_subparsers(dest="command", required=True)
 
     e = sub.add_parser("enqueue", help="add a new job")
-    e.add_argument(
-        "job_json", help='JSON string, e.g. \'{"id":"job1","command":"sleep 2"}\''
-    )
+    e.add_argument("job_json", help='JSON string, e.g. \'{"id":"job1","command":"sleep 2"}\'')
     e.set_defaults(func=cmd_enqueue)
 
     w = sub.add_parser("worker", help="manage workers")
@@ -172,9 +166,7 @@ def build_parser():
     st.set_defaults(func=cmd_status)
 
     ls = sub.add_parser("list", help="list jobs by state")
-    ls.add_argument(
-        "--state", choices=["pending", "processing", "failed", "completed", "dead"]
-    )
+    ls.add_argument("--state", choices=["pending", "processing", "failed", "completed", "dead"])
     ls.add_argument("--json", action="store_true")
     ls.set_defaults(func=cmd_list)
 

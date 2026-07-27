@@ -69,12 +69,8 @@ def init_db():
         );
     """)
     # seed defaults if absent
-    conn.execute(
-        "INSERT OR IGNORE INTO config (key, value) VALUES ('max_retries', '3')"
-    )
-    conn.execute(
-        "INSERT OR IGNORE INTO config (key, value) VALUES ('backoff_base', '2')"
-    )
+    conn.execute("INSERT OR IGNORE INTO config (key, value) VALUES ('max_retries', '3')")
+    conn.execute("INSERT OR IGNORE INTO config (key, value) VALUES ('backoff_base', '2')")
     conn.close()
 
 
@@ -95,8 +91,7 @@ def get_config(key: str, default=None):
 def set_config(key: str, value: str):
     conn = _connect()
     conn.execute(
-        "INSERT INTO config (key, value) VALUES (?, ?) "
-        "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+        "INSERT INTO config (key, value) VALUES (?, ?) " "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
         (key, value),
     )
     conn.close()
@@ -204,9 +199,7 @@ def mark_failed(job_id: str, error: str):
     are exhausted.
     """
     conn = _connect()
-    row = conn.execute(
-        "SELECT attempts, max_retries FROM jobs WHERE id=?", (job_id,)
-    ).fetchone()
+    row = conn.execute("SELECT attempts, max_retries FROM jobs WHERE id=?", (job_id,)).fetchone()
     attempts = row["attempts"] + 1
     max_retries = row["max_retries"]
     ts = now_iso()
@@ -220,9 +213,7 @@ def mark_failed(job_id: str, error: str):
     else:
         base = float(get_config("backoff_base", 2))
         delay = base**attempts
-        next_retry_at = time.strftime(
-            "%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() + delay)
-        )
+        next_retry_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() + delay))
         conn.execute(
             """UPDATE jobs SET state='failed', attempts=?, updated_at=?,
                next_retry_at=?, locked_at=NULL, locked_by=NULL, last_error=?
@@ -244,9 +235,7 @@ def reap_stale_jobs():
     Returns the number of jobs reclaimed.
     """
     conn = _connect()
-    cutoff = time.strftime(
-        "%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - STALE_LOCK_SECONDS)
-    )
+    cutoff = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - STALE_LOCK_SECONDS))
     conn.execute("BEGIN IMMEDIATE")
     cur = conn.execute(
         """UPDATE jobs SET state='pending', locked_at=NULL, locked_by=NULL,
@@ -266,9 +255,7 @@ def reap_stale_jobs():
 def list_jobs(state: str | None = None):
     conn = _connect()
     if state:
-        rows = conn.execute(
-            "SELECT * FROM jobs WHERE state = ? ORDER BY created_at ASC", (state,)
-        ).fetchall()
+        rows = conn.execute("SELECT * FROM jobs WHERE state = ? ORDER BY created_at ASC", (state,)).fetchall()
     else:
         rows = conn.execute("SELECT * FROM jobs ORDER BY created_at ASC").fetchall()
     conn.close()
@@ -277,9 +264,7 @@ def list_jobs(state: str | None = None):
 
 def counts_by_state():
     conn = _connect()
-    rows = conn.execute(
-        "SELECT state, COUNT(*) as n FROM jobs GROUP BY state"
-    ).fetchall()
+    rows = conn.execute("SELECT state, COUNT(*) as n FROM jobs GROUP BY state").fetchall()
     conn.close()
     return {r["state"]: r["n"] for r in rows}
 
