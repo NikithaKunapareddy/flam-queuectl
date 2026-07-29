@@ -153,6 +153,26 @@ queuectl config set backoff_base 3
 
 ---
 
+## 🌐 Streamlit Interactive Web Dashboard
+
+QueueCTL includes a real-time web UI built with **Streamlit** (`streamlit_app.py`). It provides a visual interface to monitor background job queues, inspect KPI cards, enqueue commands, and rescue Dead Letter Queue (DLQ) jobs with a single click.
+
+```bash
+# 1. Install Streamlit and Pandas
+pip install streamlit pandas
+
+# 2. Launch the Web Dashboard
+streamlit run streamlit_app.py
+```
+
+### Dashboard Features
+* **KPI Metric Cards**: Real-time counters for `pending`, `processing`, `completed`, `failed`, and `dead` jobs.
+* **1-Click Enqueue Form**: Enqueue any shell command with custom retry limits directly from the browser.
+* **Interactive Queue Table**: Filter jobs by state and view execution attempts, commands, and timestamps.
+* **Dead Letter Queue (DLQ) Rescue**: Expand failed jobs to inspect error logs and click **Rescue & Retry** to re-enqueue them into the pending queue.
+
+---
+
 ## 🧪 Engineering Rigor & Testing
 
 QueueCTL is backed by a thorough **6-scenario automated test suite** built with `pytest`, covering race conditions, process crashes, and retry math.
@@ -197,6 +217,7 @@ flam-queuectl/
 │   └── test_dlq.py         # DLQ routing & recovery tests
 ├── DECISIONS.md            # Technical architecture & trade-off rationale
 ├── LIVE_REVIEW_GUIDE.md    # Executive study guide & design defense notes
+├── streamlit_app.py        # Streamlit interactive web dashboard
 ├── pyproject.toml          # Project configuration & CLI script bindings
 └── README.md               # Documentation (this file)
 ```
