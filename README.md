@@ -161,8 +161,8 @@ QueueCTL includes a real-time web UI built with **Streamlit** (`streamlit_app.py
 # 1. Install Streamlit and Pandas
 pip install streamlit pandas
 
-# 2. Launch the Web Dashboard
-streamlit run streamlit_app.py
+# 2. Launch the Web Dashboard (use `python -m streamlit` on Windows/PowerShell)
+python -m streamlit run streamlit_app.py
 ```
 
 ### Dashboard Features
