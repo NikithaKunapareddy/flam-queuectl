@@ -113,20 +113,38 @@ with tab1:
 
     with d1:
         if st.button("➕ Enqueue `job-hello` (echo Hello)", use_container_width=True):
-            db.enqueue_job("job-hello", "echo Hello from QueueCTL", 3)
-            st.success("Enqueued `job-hello`!")
+            try:
+                db.enqueue_job("job-hello", "echo Hello from QueueCTL", 3)
+                st.success("Enqueued `job-hello`!")
+            except ValueError:
+                import uuid
+                uid = f"job-hello-{uuid.uuid4().hex[:4]}"
+                db.enqueue_job(uid, "echo Hello from QueueCTL", 3)
+                st.success(f"Enqueued `{uid}` (demo duplicate)!")
             st.rerun()
     with d2:
         if st.button("➕ Enqueue `job-sleep` (ping delay)", use_container_width=True):
-            db.enqueue_job("job-sleep", "ping 127.0.0.1 -n 3", 3)
-            st.success("Enqueued `job-sleep`!")
+            try:
+                db.enqueue_job("job-sleep", "ping 127.0.0.1 -n 3", 3)
+                st.success("Enqueued `job-sleep`!")
+            except ValueError:
+                import uuid
+                uid = f"job-sleep-{uuid.uuid4().hex[:4]}"
+                db.enqueue_job(uid, "ping 127.0.0.1 -n 3", 3)
+                st.success(f"Enqueued `{uid}` (demo duplicate)!")
             st.rerun()
     with d3:
         if st.button(
             "➕ Enqueue `job-fail` (cmd /c exit 1)", use_container_width=True
         ):
-            db.enqueue_job("job-fail", "cmd /c exit 1", 1)
-            st.success("Enqueued `job-fail`!")
+            try:
+                db.enqueue_job("job-fail", "cmd /c exit 1", 1)
+                st.success("Enqueued `job-fail`!")
+            except ValueError:
+                import uuid
+                uid = f"job-fail-{uuid.uuid4().hex[:4]}"
+                db.enqueue_job(uid, "cmd /c exit 1", 1)
+                st.success(f"Enqueued `{uid}` (demo duplicate)!")
             st.rerun()
 
     st.divider()
@@ -147,9 +165,12 @@ with tab1:
             )
 
             if submit_custom and custom_id and custom_cmd:
-                db.enqueue_job(custom_id, custom_cmd, custom_retries)
-                st.success(f"Enqueued `{custom_id}` successfully!")
-                st.rerun()
+                try:
+                    db.enqueue_job(custom_id, custom_cmd, custom_retries)
+                    st.success(f"Enqueued `{custom_id}` successfully!")
+                    st.rerun()
+                except ValueError as e:
+                    st.warning(f"⚠️ {e} — please use a different Job ID or click Wipe & Reset DB!")
 
     with right:
         st.subheader("📋 SQLite Jobs List (`queuectl list`)")
