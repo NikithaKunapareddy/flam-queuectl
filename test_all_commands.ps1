@@ -75,27 +75,37 @@ Test-Step "Dynamic SQLite Configuration (queuectl config get / set)" {
 # 6. TEST ATOMIC WORKER EXECUTION
 Test-Step "Worker Execution & Atomic Job Processing (queuectl worker start)" {
     Write-Host "  -> Launching background worker to process queue..." -ForegroundColor DarkGray
-    $workerProc = Start-Process python -ArgumentList "-m queuectl.cli worker start --count 1" -NoNewWindow -PassThru
-    Start-Sleep -Seconds 4
+    $script:workerProc = Start-Process python -ArgumentList "-m queuectl.cli worker start --count 1" -NoNewWindow -PassThru
+    Start-Sleep -Seconds 5
     $completedList = (python -m queuectl.cli list --state completed) -join "`n"
     if ($completedList -notmatch "job-hello" -or $completedList -notmatch "job-sleep") {
         throw "Completed queue did not contain job-hello and job-sleep"
     }
-    if (!$workerProc.HasExited) { Stop-Process -Id $workerProc.Id -Force -ErrorAction SilentlyContinue }
+    # Stop worker NOW before DLQ test so it cannot re-process rescued jobs
+    if ($script:workerProc -and !$script:workerProc.HasExited) {
+        Stop-Process -Id $script:workerProc.Id -Force -ErrorAction SilentlyContinue
+    }
+    Start-Sleep -Seconds 1  # Wait for worker to fully terminate
+    Write-Host "  -> Worker stopped cleanly before DLQ test" -ForegroundColor DarkGray
 }
 
 # 7. TEST DEAD LETTER QUEUE (DLQ) LISTING & RESCUE
 Test-Step "Dead Letter Queue Quarantine & Rescue (queuectl dlq list / retry)" {
+    # Verify job-fail was quarantined in DLQ after exhausting max_retries=1
     $dlqList = (python -m queuectl.cli dlq list) -join "`n"
+    Write-Host "  -> DLQ contents: $dlqList" -ForegroundColor DarkGray
     if ($dlqList -notmatch "job-fail") {
         throw "job-fail was not found in DLQ after retry exhaustion"
     }
-    Write-Host "  -> Rescuing job-fail via dlq retry..." -ForegroundColor DarkGray
+    Write-Host "  -> Rescuing job-fail via dlq retry (no worker running)..." -ForegroundColor DarkGray
     python -m queuectl.cli dlq retry job-fail
+    # With NO worker running, job-fail must now be in pending state
     $pendingAfter = (python -m queuectl.cli list --state pending) -join "`n"
+    Write-Host "  -> Pending after rescue: $pendingAfter" -ForegroundColor DarkGray
     if ($pendingAfter -notmatch "job-fail") {
         throw "job-fail was not returned to pending queue after dlq retry"
     }
+    Write-Host "  -> DLQ rescue confirmed: job-fail is back in pending!" -ForegroundColor Green
 }
 
 # 8. TEST WORKER STOP & CLEANUP
