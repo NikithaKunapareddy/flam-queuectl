@@ -5,6 +5,9 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![SQLite WAL](https://img.shields.io/badge/backed%20by-SQLite%20WAL-003B57.svg)](https://sqlite.org/wal.html)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-zero%20core-brightgreen.svg)]()
+[![Live Demo](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://nikithakunapareddy-flam-queuectl-streamlit-app-sg4odx.streamlit.app/)
+
+> 🌐 **[Live Demo → QueueCTL Web Dashboard](https://nikithakunapareddy-flam-queuectl-streamlit-app-sg4odx.streamlit.app/)**
 
 > **A production-grade, lightweight CLI background job queue backed by SQLite—featuring cross-process atomicity, automated crash recovery, exponential backoff, and Dead Letter Queue (DLQ) routing.**
 
