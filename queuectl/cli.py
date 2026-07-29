@@ -34,13 +34,32 @@ def _live_workers():
         except Exception:
             f.unlink(missing_ok=True)
             continue
-        try:
-            os.kill(pid, 0)  # signal 0: existence check, doesn't actually kill
+
+        is_alive = False
+        if sys.platform == "win32":
+            import ctypes
+            try:
+                handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)
+                if handle != 0:
+                    is_alive = True
+                    ctypes.windll.kernel32.CloseHandle(handle)
+            except Exception:
+                is_alive = False
+        else:
+            try:
+                os.kill(pid, 0)  # signal 0: existence check, doesn't actually kill
+                is_alive = True
+            except ProcessLookupError:
+                is_alive = False
+            except PermissionError:
+                is_alive = True
+            except OSError:
+                is_alive = False
+
+        if is_alive:
             alive.append(info)
-        except ProcessLookupError:
+        else:
             f.unlink(missing_ok=True)  # stale file from a crashed worker
-        except PermissionError:
-            alive.append(info)  # process exists, owned by someone else
     return alive
 
 
